@@ -245,12 +245,12 @@ class CyberSource
 		$request->clientEnvironment = php_uname();
 		// this also is pretty stupid, particularly the name
 		$purchase_totals = new \stdClass();
-		$purchase_totals->currency = $this->currency();
+		$purchase_totals->currency = $this->currency_code;
 		$request->purchaseTotals = $purchase_totals;
 		return $request;
 	}
 
-	public function currency($currency_code)
+	public function currency($currency_code = "USD")
 	{
 		$this->currency_code = $currency_code;
 		return $this;
