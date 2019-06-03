@@ -233,6 +233,35 @@ class CyberSource
 		return $response;
 	}
 
+	public function chargeWithApplePay($token, $amount) {
+        $request = $this->create_request();
+        // we want to perform an authorization
+        $cc_auth_service = new \stdClass();
+        $cc_auth_service->run = 'true';        // note that it's textual true so it doesn't get cast as an int
+        $request->ccAuthService = $cc_auth_service;
+        // and actually charge them
+        $cc_capture_service = new \stdClass();
+        $cc_capture_service->run = 'true';
+        $request->ccCaptureService = $cc_capture_service;
+        // add billing info to the request
+        $request->billTo = $this->create_bill_to();
+
+        $encryptedPayment = new stdClass();
+        $encryptedPayment->descriptor = 'RklEPUNPTU1PTi5BUFBMRS5JTkFQUC5QQVlNRU5U';
+        $encryptedPayment->data = $token;
+        $encryptedPayment->encoding = 'Base64';
+        $request->encryptedPayment = $encryptedPayment;
+        $request->paymentSolution = '001';
+
+        if ($amount !== null) {
+            $request->purchaseTotals->grandTotalAmount = $amount;
+        } else {
+            $this->create_items($request);
+        }
+        $response = $this->run_transaction($request);
+        return $response;
+	}
+
 	protected function create_request()
 	{
 		// build the class for the request
