@@ -246,7 +246,7 @@ class CyberSource
         // add billing info to the request
         $request->billTo = $this->create_bill_to();
 
-        $encryptedPayment = new stdClass();
+        $encryptedPayment = new \stdClass();
         $encryptedPayment->descriptor = 'RklEPUNPTU1PTi5BUFBMRS5JTkFQUC5QQVlNRU5U';
         $encryptedPayment->data = $token;
         $encryptedPayment->encoding = 'Base64';
