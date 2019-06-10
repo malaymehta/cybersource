@@ -7,6 +7,8 @@ class CyberSource
 	const ENV_PRODUCTION = 'https://ics2ws.ic3.com/commerce/1.x/transactionProcessor/CyberSourceTransaction_1.67.wsdl';
 	const VERSION = '0.3';
 	const API_VERSION = '1.67';
+    const APPLEPAY_DESCRIPTOR = 'RklEPUNPTU1PTi5BUFBMRS5JTkFQUC5QQVlNRU5U';
+    const APPLEPAY_ENCODING = 'Base64';
 	/**
 	 * @var string The URL to the WSDL endpoint for the environment we're running in (test or production), as stored in self::ENV_* constants.
 	 */
@@ -247,9 +249,9 @@ class CyberSource
         $request->billTo = $this->create_bill_to();
 
         $encryptedPayment = new \stdClass();
-        $encryptedPayment->descriptor = 'RklEPUNPTU1PTi5BUFBMRS5JTkFQUC5QQVlNRU5U';
+        $encryptedPayment->descriptor = APPLEPAY_DESCRIPTOR;
         $encryptedPayment->data = $token;
-        $encryptedPayment->encoding = 'Base64';
+        $encryptedPayment->encoding = APPLEPAY_ENCODING;
         $request->encryptedPayment = $encryptedPayment;
         $request->paymentSolution = '001';
 
