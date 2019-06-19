@@ -249,9 +249,9 @@ class CyberSource
         $request->billTo = $this->create_bill_to();
 
         $encryptedPayment = new \stdClass();
-        $encryptedPayment->descriptor = APPLEPAY_DESCRIPTOR;
+        $encryptedPayment->descriptor = self::APPLEPAY_DESCRIPTOR;
         $encryptedPayment->data = $token;
-        $encryptedPayment->encoding = APPLEPAY_ENCODING;
+        $encryptedPayment->encoding = self::APPLEPAY_ENCODING;
         $request->encryptedPayment = $encryptedPayment;
         $request->paymentSolution = '001';
 
