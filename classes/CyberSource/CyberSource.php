@@ -3,12 +3,12 @@ namespace CyberSource;
 
 class CyberSource
 {
-	const ENV_TEST = 'https://ics2wstest.ic3.com/commerce/1.x/transactionProcessor/CyberSourceTransaction_1.67.wsdl';
-	const ENV_PRODUCTION = 'https://ics2ws.ic3.com/commerce/1.x/transactionProcessor/CyberSourceTransaction_1.67.wsdl';
+	const ENV_TEST = 'https://ics2wstest.ic3.com/commerce/1.x/transactionProcessor/CyberSourceTransaction_1.154.wsdl';
+	const ENV_PRODUCTION = 'https://ics2ws.ic3.com/commerce/1.x/transactionProcessor/CyberSourceTransaction_1.154.wsdl';
 	const VERSION = '0.3';
-	const API_VERSION = '1.67';
-    const APPLEPAY_DESCRIPTOR = 'RklEPUNPTU1PTi5BUFBMRS5JTkFQUC5QQVlNRU5U';
-    const APPLEPAY_ENCODING = 'Base64';
+	const API_VERSION = '1.154';
+	const APPLEPAY_DESCRIPTOR = 'RklEPUNPTU1PTi5BUFBMRS5JTkFQUC5QQVlNRU5U';
+	const APPLEPAY_ENCODING = 'Base64';
 	/**
 	 * @var string The URL to the WSDL endpoint for the environment we're running in (test or production), as stored in self::ENV_* constants.
 	 */
@@ -191,6 +191,7 @@ class CyberSource
 		return $this;
 	}
 
+
 	public function items($items = [])
 	{
 		foreach ($items as $item) {
@@ -235,33 +236,61 @@ class CyberSource
 		return $response;
 	}
 
+	public function chargeWithFlexToken($amount, $token)
+	{
+		$request = $this->create_request();
+		// we want to perform an authorization
+		$cc_auth_service = new \stdClass();
+		$cc_auth_service->run = 'true';        // note that it's textual true so it doesn't get cast as an int
+		$request->ccAuthService = $cc_auth_service;
+		// and actually charge them
+		$cc_capture_service = new \stdClass();
+		$cc_capture_service->run = 'true';
+		$request->ccCaptureService = $cc_capture_service;
+		// add billing info to the request
+		$request->billTo = $this->create_bill_to();
+		// add token info to the request
+		$tokenSource = new \stdClass();
+		$tokenSource->transientToken = $token;
+		$request->tokenSource = $tokenSource;
+
+		// if there was an amount specified, just use it - otherwise add the individual items
+		if ($amount !== null) {
+			$request->purchaseTotals->grandTotalAmount = $amount;
+		} else {
+			$this->create_items($request);
+		}
+		$response = $this->run_transaction($request);
+		return $response;
+	}
+
 	public function chargeWithApplePay($token, $amount) {
-        $request = $this->create_request();
-        // we want to perform an authorization
-        $cc_auth_service = new \stdClass();
-        $cc_auth_service->run = 'true';        // note that it's textual true so it doesn't get cast as an int
-        $request->ccAuthService = $cc_auth_service;
-        // and actually charge them
-        $cc_capture_service = new \stdClass();
-        $cc_capture_service->run = 'true';
-        $request->ccCaptureService = $cc_capture_service;
-        // add billing info to the request
-        $request->billTo = $this->create_bill_to();
+		$request = $this->create_request();
+		// we want to perform an authorization
+		$cc_auth_service = new \stdClass();
+		$cc_auth_service->run = 'true';        // note that it's textual true so it doesn't get cast as an int
+		$request->ccAuthService = $cc_auth_service;
+		// and actually charge them
+		$cc_capture_service = new \stdClass();
+		$cc_capture_service->run = 'true';
+		$request->ccCaptureService = $cc_capture_service;
+		// add billing info to the request
+		$request->billTo = $this->create_bill_to();
 
-        $encryptedPayment = new \stdClass();
-        $encryptedPayment->descriptor = self::APPLEPAY_DESCRIPTOR;
-        $encryptedPayment->data = $token;
-        $encryptedPayment->encoding = self::APPLEPAY_ENCODING;
-        $request->encryptedPayment = $encryptedPayment;
-        $request->paymentSolution = '001';
+		$encryptedPayment = new \stdClass();
+		$encryptedPayment->descriptor = self::APPLEPAY_DESCRIPTOR;
+		$encryptedPayment->data = $token;
+		$encryptedPayment->encoding = self::APPLEPAY_ENCODING;
+		$request->encryptedPayment = $encryptedPayment;
+		$request->paymentSolution = '001';
 
-        if ($amount !== null) {
-            $request->purchaseTotals->grandTotalAmount = $amount;
-        } else {
-            $this->create_items($request);
-        }
-        $response = $this->run_transaction($request);
-        return $response;
+		if ($amount !== null) {
+			$request->purchaseTotals->grandTotalAmount = $amount;
+		} else {
+			$this->create_items($request);
+		}
+		$response = $this->run_transaction($request);
+		return $response;
 	}
 
 	protected function create_request()
@@ -838,5 +867,3 @@ class CyberSource_Invalid_Field_Exception extends CyberSource_Exception
 class CyberSource_Missing_Field_Exception extends CyberSource_Exception
 {
 }
-
-?>
