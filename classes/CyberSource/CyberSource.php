@@ -562,7 +562,53 @@ class CyberSource
 		return $response;
 	}
 
-	/**
+    /**
+     * Create a new payment subscription, either by performing a $0 authorization check on the credit card or using a
+     * pre-created request token from an authorization request that's already been performed.
+     *
+     * @param string       $token The Token received from an AuthReply statement, if applicable.
+     * @param string       $request_id The request ID received from an AuthReply statement, if applicable.
+     * @param boolean|null $auto_authorize Set to false to enable the disableAutoAuth flag to avoid an authorization and simply store the card. The default (null) means to omit the value, which means it'll use the setting on the account. Set to true to force an authorization, whether the account requires it or not.
+     * @return stdClass The raw response object from the SOAP endpoint
+     */
+
+    public function create_subscription_with_token($token, $request_id = null, $auto_authorize = null, $subscription_info = null)
+    {
+        $request = $this->create_request();
+        $subscription_create = new \stdClass();
+        $subscription_create->run = 'true';
+        // if there is a request token passed in, reference it
+        if ($request_id != null) {
+            $subscription_create->paymentRequestID = $request_id;
+        } else {
+            if ($auto_authorize === false) {
+                $subscription_create->disableAutoAuth = 'true';
+            } else {
+                if ($auto_authorize === true) {
+                    $subscription_create->disableAutoAuth = 'false';
+                }
+            }
+        }
+        $request->paySubscriptionCreateService = $subscription_create;
+        if ($subscription_info == null) {
+            // specify that this is an on-demand subscription, it should not auto-bill
+            $subscription_info = new \stdClass();
+            $subscription_info->frequency = 'on-demand';
+        }
+        $request->recurringSubscriptionInfo = $subscription_info;
+        // add token info to the request
+        $tokenSource = new \stdClass();
+        $tokenSource->transientToken = $token;
+        $request->tokenSource = $tokenSource;
+        $request->billTo = $this->create_bill_to();
+
+        $response = $this->run_transaction($request);
+        // return just the subscription ID from the response
+        return $response;
+    }
+
+
+    /**
 	 * Delete the given Subscription ID permanently.
 	 *
 	 * @param string $subscription_id The CyberSource Subscription ID to delete.
