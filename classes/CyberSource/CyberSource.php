@@ -714,6 +714,28 @@ class CyberSource
 		return $response;
 	}
 
+	public function validate_card_with_token($token)
+    {
+        $request = $this->create_request();
+        $cc_auth_service = new \stdClass();
+        $cc_auth_service->run = 'true';
+        $request->ccAuthService = $cc_auth_service;
+        // add billing info to the request
+        $request->billTo = $this->create_bill_to();
+
+        // add token info to the request
+        $tokenSource = new \stdClass();
+        $tokenSource->transientToken = $token;
+        $request->tokenSource = $tokenSource;
+
+        // set the grand total amount to 0, instead of including items
+        $request->purchaseTotals->grandTotalAmount = 0;
+        // run the authentication check
+        $response = $this->run_transaction($request);
+        // if we didn't throw an exception everything went fine, just return the request token
+        return $response;
+    }
+
 	public function authorize($amount = null)
 	{
 		$request = $this->create_request();
