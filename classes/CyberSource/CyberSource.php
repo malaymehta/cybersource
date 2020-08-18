@@ -111,6 +111,7 @@ class CyberSource
 		'247' => 'You requested a credit for a capture that was previously voided.',
 		'250' => 'Error: The request was received, but there was a timeout at the payment processor.',
 		'520' => 'The authorization request was approved by the issuing bank but declined by CyberSource based on your Smart Authorization settings.',
+        '481' => 'Transaction declined based on your payment settings for the profile.',
 	];
 	public $card_types = [
 		'Visa'             => '001',
