@@ -74,6 +74,7 @@ class CyberSource
 		'3' => 'No result code was returned by the processor.',
 	];
 	public $result_codes = [
+		 '0' => 'Something went wrong. Please try again.',
 		'100' => 'Successful transaction. Try again or use different payment method',
 		'101' => 'The request is missing one or more required fields. Try again or use different payment method',
 		'102' => 'One or more fields in the request contains invalid data. Try again or use different payment method',
