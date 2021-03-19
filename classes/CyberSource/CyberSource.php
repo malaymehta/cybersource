@@ -732,7 +732,7 @@ class CyberSource
         $request->tokenSource = $tokenSource;
 
         // set the grand total amount to 0, instead of including items
-        $request->purchaseTotals->grandTotalAmount = 0;
+        $request->purchaseTotals->grandTotalAmount = 0.01;
         // run the authentication check
         $response = $this->run_transaction($request);
         // if we didn't throw an exception everything went fine, just return the request token
